@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pages/index.css">
+    <title>Список фильмов</title>
+</head>
+<body class="body">
+    
+    <div class="viewing-films">
+        <div class="container">
+            <div class="viewing-films__header">
+                <div class="viewing-films__header-items">
+                    <h2 class="list list_stile">Список фильмов</h2>
+                    <p class="number-year list_stile">2023</p>
+                </div>
+                <h1 class="name-site">Посмотреть</h1>
+            </div>
+
+            <div class="viewing-films__list">
+                <div class="viewing-films__list-wrapper">
+                    <div class="input">
+                        <input type="text" class="js-input__add-films input__add-films" placeholder="Добавить фильм">
+                        <button class="js-button-download-films button-download-films"><img class="input__btn-add" src="resources/icons/arrow-right/arrow-right.png" alt="Кнопка добавления фильмов"></button>
+                    </div>
+                    <div id="list-films-id" class="js-list-films list-films"></div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="scripts/index.js"></script>
+</body>
+</html>
