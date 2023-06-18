@@ -3,12 +3,15 @@ const ID_CONTAINER_WITH_LIST_FILMS = 'list-films-id';
 const CLASS_NAME_CHECKBOX = 'checkbox-film';
 const CLASS_NAME_REMOVAL_CROSS = 'film__cross-delete';
 
-const MODIFIER_DIMMING = "film_blackout";
-const MODIFIER_CROSS_OUT_NAME_FILM = "name-film_cross-out";
-const MODIFIER_BACKGROUND_CHECKBOX = "background_checkbox";
+const INITIAL_CLASS_ELEMENT_LIST_FILMS = "list-films__film";
+const INITIAL_CLASS_CHECKBOX = "checkbox-film";
+const INITIAL_CLASS_NAME_FILM = "name-film";
 
+const MODIFIER_CLASS_ELEMENT_LIST_FILMS = "list-films_blackout";
+const MODIFIER_CLASS_CHECKBOX = "checkbox-film_background";
+const MODIFIER_CLASS_NAME_FILM = "name-film_cross-out";
 
-const inputFilmsNode = document.querySelector('.js-input__add-films');
+const inputNode = document.querySelector('.js-input__add-films');
 const btnAddFilmNodde = document.querySelector('.js-button-download-films');
 const listMovieNode = document.querySelector('.js-list-films');
 
@@ -16,62 +19,96 @@ const checkboxsNode = document.getElementsByClassName('checkbox-film');
 const crossDeleteNode = document.getElementsByClassName('film__cross-delete');
 const filmNode = document.getElementsByClassName('film');
 
-// Получаем массив из localStorage
-let listFilmsLocalStorage = JSON.parse(localStorage.getItem(KEY_ARRAY_IN_LOCAL_STORAGE));
+let nameFilm = null;
 
-// Проверяем, есть ли в localStorage массив с ключём - listFilms. Если его нет, то создаём
 window.onload = function(){
-    let listFilms = [];
-    if(localStorage.getItem(KEY_ARRAY_IN_LOCAL_STORAGE) === null){
-        localStorage.setItem(KEY_ARRAY_IN_LOCAL_STORAGE, JSON.stringify(listFilms));
-    };
+    render();
+};
+
+const listFilmsLocalStorageString = localStorage.getItem(KEY_ARRAY_IN_LOCAL_STORAGE);
+const listFilmsLocalStorage = JSON.parse(listFilmsLocalStorageString);
+let listFilms = [];
+
+if(Array.isArray(listFilmsLocalStorage)){
+    listFilms = listFilmsLocalStorage;
 };
 
 // Кнопка добавления фильма в список
 btnAddFilmNodde.addEventListener('click', function () {
-    getNameFilmInArrow();
-    outputNameFilmInWindow();
+    getNameFilm();
+    createObject(nameFilm);
+    render();
 });
 
 // Получаем название фильмма 
-const getNameFilmInArrow = () => {
-    if(inputFilmsNode.value === ''){
+const getNameFilm = () => {
+    if(inputNode.value === ''){
         return;
     };
-    let nameFilm = inputFilmsNode.value;
-    createObjectFilm(nameFilm);
-    inputFilmsNode.value = "";
+    nameFilm = inputNode.value;
+    inputNode.value = "";
 };
 
-// Создаёт объекты и добавляет в массив - listFilms
-const createObjectFilm = (nameFilm) => {
-    let listFilms = [];
-    const objectFilms = {
+const createObject = (nameFilm) => {
+    const object = {
         nameFilm,
-        filmBlackout: "",
-        crossOut: "",
-        backgroundCheckbox: "",
+        classListFilm: INITIAL_CLASS_ELEMENT_LIST_FILMS,
+        classCheckbox: INITIAL_CLASS_CHECKBOX,
+        classNameFilm: INITIAL_CLASS_NAME_FILM,
     };
-    listFilms.push(objectFilms);
-    saveFilmInLocalStorage(listFilms);
+
+    listFilms.push(object);
+    const listFilmsJSON = JSON.stringify(listFilms);
+    localStorage.setItem(KEY_ARRAY_IN_LOCAL_STORAGE, listFilmsJSON);
 };
 
-// Сохраняет данные в локальное хранилище
-const saveFilmInLocalStorage = (listFilms) => {
-    for(let film of listFilms){
-        listFilmsLocalStorage.push(film);
-    };
-    localStorage.setItem(KEY_ARRAY_IN_LOCAL_STORAGE, JSON.stringify(listFilmsLocalStorage));
+const createHtmlElement = () => {
+    listMovieNode.innerHTML = "";
+    listFilms.forEach(film => {
+        const filmNode = document.createElement("div");
+        filmNode.className = film.classListFilm;
+
+        const checkboxAndNameNode = document.createElement("div");
+        checkboxAndNameNode.className = "film__checkbox-name";
+
+        const inputCheckboxNode = document.createElement("input");
+        inputCheckboxNode.id = "checkbox-id";
+        inputCheckboxNode.type = "checkbox";
+
+        const labelNode = document.createElement("label");
+        labelNode.for = "checkbox-id";
+        labelNode.className = film.classCheckbox;
+
+        const nameMovieNode = document.createElement("p");
+        nameMovieNode.className = film.classNameFilm;
+        nameMovieNode.textContent = film.nameFilm;
+
+        const imgCrossDeleteNode = document.createElement("img");
+        imgCrossDeleteNode.className = "film__cross-delete";
+        imgCrossDeleteNode.src = "resources/icons/cross-delete/cross-delete.png";
+        imgCrossDeleteNode.alt = "Крестик удаления";
+
+        filmNode.appendChild(checkboxAndNameNode);
+        filmNode.appendChild(imgCrossDeleteNode);
+        checkboxAndNameNode.appendChild(inputCheckboxNode);
+        checkboxAndNameNode.appendChild(labelNode);
+        checkboxAndNameNode.appendChild(nameMovieNode);
+
+        listMovieNode.appendChild(filmNode);
+    });
 };
 
-// ДАЛЕЕ ОПИШЕМ ЛОГИКУ КЛИКА ПО ФЛАЖКАМ
-// Определяем индекс флажка и индекс крестика, по которым произошол клик и передаём их в соответствующие функции
-document.getElementById(ID_CONTAINER_WITH_LIST_FILMS).onclick = function(e){
+const render = () => {
+    createHtmlElement();
+};
+
+// Клик по чекбоксу и крестику
+document.addEventListener('click', (e)=> {
     const item = e.target;
     if(item.classList.contains(CLASS_NAME_CHECKBOX)){
         for(let i=0; i<checkboxsNode.length; i++){
             if(item === checkboxsNode[i]){
-                crossUpTextAndBlackoutBackground(i);
+                changeStatus(i);
             };
         };
     };
@@ -82,57 +119,28 @@ document.getElementById(ID_CONTAINER_WITH_LIST_FILMS).onclick = function(e){
             };
         };
     };
+});
+
+const changeStatus = (index) => {
+    let listFilmsItem = listFilms[index];
+    
+    listFilmsItem.classListFilm === INITIAL_CLASS_ELEMENT_LIST_FILMS ? 
+        listFilmsItem.classListFilm = `${INITIAL_CLASS_ELEMENT_LIST_FILMS} ${MODIFIER_CLASS_ELEMENT_LIST_FILMS}` : listFilmsItem.classListFilm = INITIAL_CLASS_ELEMENT_LIST_FILMS;
+
+    listFilmsItem.classCheckbox === INITIAL_CLASS_CHECKBOX ? 
+        listFilmsItem.classCheckbox = `${INITIAL_CLASS_CHECKBOX} ${MODIFIER_CLASS_CHECKBOX}` : listFilmsItem.classCheckbox = INITIAL_CLASS_CHECKBOX;
+
+    listFilmsItem.classNameFilm === INITIAL_CLASS_NAME_FILM ? 
+        listFilmsItem.classNameFilm = `${INITIAL_CLASS_NAME_FILM} ${MODIFIER_CLASS_NAME_FILM}` : listFilmsItem.classNameFilm = INITIAL_CLASS_NAME_FILM;
+    
+    const listFilmsJSON = JSON.stringify(listFilms);
+    localStorage.setItem(KEY_ARRAY_IN_LOCAL_STORAGE, listFilmsJSON);
+    render();
 };
 
-const crossUpTextAndBlackoutBackground = (index) => {
-    if(listFilmsLocalStorage[index].filmBlackout !== MODIFIER_DIMMING){
-        if(listFilmsLocalStorage[index].filmBlackout !== MODIFIER_CROSS_OUT_NAME_FILM){
-            if(listFilmsLocalStorage[index].filmBlackout !== MODIFIER_BACKGROUND_CHECKBOX){
-                listFilmsLocalStorage[index].filmBlackout = MODIFIER_DIMMING;
-                listFilmsLocalStorage[index].crossOut = MODIFIER_CROSS_OUT_NAME_FILM;
-                listFilmsLocalStorage[index].backgroundCheckbox = MODIFIER_BACKGROUND_CHECKBOX;
-            }; 
-        };
-        
-    } else {
-        listFilmsLocalStorage[index].filmBlackout = "";
-        listFilmsLocalStorage[index].crossOut = "";
-        listFilmsLocalStorage[index].backgroundCheckbox = "";
-    };
-    // Сохраняем изменение в localStorage
-    localStorage.setItem(KEY_ARRAY_IN_LOCAL_STORAGE, JSON.stringify(listFilmsLocalStorage));
-    // Выводим изменение на экран
-    outputNameFilmInWindow();
+const deleteFilmFromList = (index) => {
+    listFilms.splice(index, 1);
+    const listFilmsJSON = JSON.stringify(listFilms);
+    localStorage.setItem(KEY_ARRAY_IN_LOCAL_STORAGE, listFilmsJSON);
+    render();
 };
-
-// Удаляет фильм из списка, а также удаляет соответствующий объект из массива
-const deleteFilmFromList = (indexCross) => {
-    // Удаляем элемент с экрана
-    filmNode[indexCross].remove();
-    // Удаляем данные карточки с localStorage
-    listFilmsLocalStorage.splice(indexCross, 1);
-    // Сохраняем изменения в localStorage
-    localStorage.setItem(KEY_ARRAY_IN_LOCAL_STORAGE, JSON.stringify(listFilmsLocalStorage));
-};
-
-
-// Вывод сохранённого фильма на экран
-const outputNameFilmInWindow = () => {
-    let listFilmsHTML = '';
-    listFilmsLocalStorage.forEach(item =>{
-        let addedFilm = `
-            <div class="film ${item.filmBlackout}">
-                <div class="film__checkbox-name">
-                    <input id="checkbox-id" type="checkbox">
-                    <label for="checkbox-id" class="checkbox-film ${item.backgroundCheckbox}"></label>
-                    <p class="name-film ${item.crossOut}">${item.nameFilm}</p>
-                </div>
-                <img class="film__cross-delete" src="resources/icons/cross-delete/cross-delete.png" alt="Крестик удаления">
-            </div>
-        `;
-        listFilmsHTML += addedFilm;
-        console.log(listFilmsHTML);
-        listMovieNode.innerHTML = listFilmsHTML;
-    });
-};
-outputNameFilmInWindow();

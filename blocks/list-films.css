@@ -105,11 +105,8 @@
 
 
 /* Список фильмов */
-.list-films{
-    
-}
 
-.film{
+.list-films__film{
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -170,7 +167,7 @@ input[type="checkbox"]{
 }
 
 /* Эти модификаторы сработают при нажатии на checkbox */
-.film_blackout{
+.list-films_blackout{
     opacity: 0.3;
 }
 
@@ -178,6 +175,6 @@ input[type="checkbox"]{
     text-decoration: line-through;
 }
 
-.background_checkbox{
+.checkbox-film_background{
     background-color: #6532F8;
 }
